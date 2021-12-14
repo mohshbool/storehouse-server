@@ -14,5 +14,6 @@ import { CodeModule } from 'src/code/code.module';
   ],
   providers: [UserService],
   controllers: [UserController],
+  exports: [UserService],
 })
 export class UserModule {}
