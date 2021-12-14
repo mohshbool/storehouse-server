@@ -1,3 +1,4 @@
+import { MailerModule } from '@nestjs-modules/mailer';
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { AppController } from './app.controller';
@@ -12,6 +13,19 @@ import { UserModule } from './user/user.module';
         // eslint-disable-next-line @typescript-eslint/no-var-requires
         connection.plugin(require('mongoose-autopopulate'));
         return connection;
+      },
+    }),
+    MailerModule.forRoot({
+      transport: {
+        service: 'gmail',
+        host: 'smtp.gmail.com',
+        auth: {
+          user: 'sagerstorehouseshbool@gmail.com',
+          pass: 'shbool12345',
+        },
+      },
+      defaults: {
+        from: 'Sager Storehouse <sagerstorehouseshbool@gmail.com>',
       },
     }),
     TokenModule,

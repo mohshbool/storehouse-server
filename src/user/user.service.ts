@@ -3,12 +3,19 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { compare, hash } from 'bcrypt';
 import { TokenService } from 'src/token/token.service';
-import { CreateUserInput, UpdateUserInput, LoginInput } from './user.interface';
+import {
+  CreateUserInput,
+  UpdateUserInput,
+  LoginInput,
+  UpdatePassword,
+} from './user.interface';
 import { User, UserDocument } from './user.schema';
+import { CodeService } from 'src/code/code.service';
 
 @Injectable()
 export class UserService {
   constructor(
+    private readonly codeService: CodeService,
     private readonly tokenService: TokenService,
     @InjectModel(User.name) private readonly userModel: Model<UserDocument>,
   ) {}
@@ -114,5 +121,36 @@ export class UserService {
       ...user.toJSON(),
       token: await this.tokenService.create(user),
     };
+  }
+
+  async updatePassword(id: string, { password, oldPassword }: UpdatePassword) {
+    if (oldPassword) {
+      const user = await this.findOne(id);
+      if (!(await compare(oldPassword, user.password))) {
+        throw new BadRequestException('Old password doesnt match');
+      }
+    }
+    return this.update(id, { password: await hash(password, 10) });
+  }
+
+  async forgetPassword(email: string) {
+    if (email) {
+      const user = await this.userModel.findOne({ email });
+      if (!user) {
+        throw new BadRequestException('No user with this email was found');
+      }
+
+      this.codeService.send(user);
+
+      return {
+        ...user.toJSON(),
+        token: await this.tokenService.create(user),
+      };
+    }
+    return null;
+  }
+
+  async refreshToken(user: UserDocument) {
+    return this.tokenService.refreshToken(user);
   }
 }
