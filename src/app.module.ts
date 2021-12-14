@@ -5,6 +5,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { CategoryModule } from './category/category.module';
 import { CodeModule } from './code/code.module';
+import { ProductModule } from './product/product.module';
 import { TokenModule } from './token/token.module';
 import { UserModule } from './user/user.module';
 
@@ -34,6 +35,7 @@ import { UserModule } from './user/user.module';
     CodeModule,
     UserModule,
     CategoryModule,
+    ProductModule,
   ],
   controllers: [AppController],
   providers: [AppService],
