@@ -1,7 +1,8 @@
 import * as moment from 'moment';
-import { Document } from 'mongoose';
+import { Document, Schema as MongooseSchema } from 'mongoose';
 
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { Upload } from 'src/upload/upload.schema';
 
 export type UserDocument = User & Document;
 
@@ -17,6 +18,13 @@ export class User {
 
   @Prop({ private: true })
   password: string;
+
+  @Prop({
+    type: MongooseSchema.Types.ObjectId,
+    ref: Upload.name,
+    autopopulate: true,
+  })
+  icon: Upload;
 
   @Prop({ default: false })
   deleted: boolean;

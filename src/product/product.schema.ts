@@ -3,6 +3,7 @@ import { Document, Schema as MongooseSchema } from 'mongoose';
 
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Category } from 'src/category/category.schema';
+import { Upload } from 'src/upload/upload.schema';
 
 export type ProductDocument = Product & Document;
 
@@ -16,14 +17,18 @@ export class Product {
   @Prop()
   description: string;
 
-  @Prop()
+  @Prop({ default: 1 })
   quantity: number;
 
-  @Prop()
+  @Prop({ default: 1 })
   price: number;
 
-  @Prop()
-  image: string;
+  @Prop({
+    type: MongooseSchema.Types.ObjectId,
+    ref: Upload.name,
+    autopopulate: true,
+  })
+  image: Upload;
 
   @Prop([
     {
