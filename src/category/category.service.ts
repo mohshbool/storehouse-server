@@ -12,7 +12,10 @@ export class CategoryService {
   ) {}
 
   async create(name: string) {
-    const categoryCheck = await this.categoryModel.findOne({ name });
+    const categoryCheck = await this.categoryModel.findOne({
+      name,
+      deleted: false,
+    });
 
     if (categoryCheck) {
       throw new BadRequestException('Category already exists');
@@ -65,5 +68,38 @@ export class CategoryService {
 
   async remove(id: string) {
     return this.update(id, { id, deleted: true });
+  }
+
+  async findByName(name: string) {
+    return this.categoryModel.findOne({ name });
+  }
+
+  async getByQuarter(year = 2021) {
+    return [
+      await this.categoryModel.count({
+        created_at: {
+          $gte: new Date(year, 1, 1),
+          $lt: new Date(year, 3, 1),
+        },
+      }),
+      await this.categoryModel.count({
+        created_at: {
+          $gte: new Date(year, 3, 1),
+          $lt: new Date(year, 6, 1),
+        },
+      }),
+      await this.categoryModel.count({
+        created_at: {
+          $gte: new Date(year, 6, 1),
+          $lt: new Date(year, 9, 1),
+        },
+      }),
+      await this.categoryModel.count({
+        created_at: {
+          $gte: new Date(year, 9, 1),
+          $lt: new Date(year, 12, 1),
+        },
+      }),
+    ];
   }
 }

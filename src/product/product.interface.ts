@@ -5,8 +5,8 @@ export class CreateProductInput {
   description: string;
   quantity?: number;
   price?: number;
-  image: string;
-  categories: Category[];
+  image?: string;
+  categories: string[];
 }
 
 export class UpdateProductInput {

@@ -1,6 +1,8 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
+import { Category } from 'src/category/category.schema';
+import { CategoryService } from 'src/category/category.service';
 import { CreateProductInput } from './product.interface';
 import { UpdateProductInput } from './product.interface';
 import { Product, ProductDocument } from './product.schema';
@@ -8,13 +10,23 @@ import { Product, ProductDocument } from './product.schema';
 @Injectable()
 export class ProductService {
   constructor(
+    private readonly categoryService: CategoryService,
     @InjectModel(Product.name)
     private readonly productModel: Model<ProductDocument>,
   ) {}
 
   async create(input: CreateProductInput) {
     try {
-      const product: ProductDocument = new this.productModel(input);
+      const categories: Category[] = [];
+      for (let i = 0; i < input.categories.length; i++) {
+        categories.push(
+          await this.categoryService.findByName(input.categories[i]),
+        );
+      }
+      const product: ProductDocument = new this.productModel({
+        ...input,
+        categories,
+      });
       await product.save();
       return {
         ...product.toJSON(),
@@ -55,5 +67,34 @@ export class ProductService {
 
   async remove(id: string) {
     return this.update(id, { id, deleted: true });
+  }
+
+  async getByQuarter(year = 2021) {
+    return [
+      await this.productModel.count({
+        created_at: {
+          $gte: new Date(year, 1, 1),
+          $lt: new Date(year, 3, 1),
+        },
+      }),
+      await this.productModel.count({
+        created_at: {
+          $gte: new Date(year, 3, 1),
+          $lt: new Date(year, 6, 1),
+        },
+      }),
+      await this.productModel.count({
+        created_at: {
+          $gte: new Date(year, 6, 1),
+          $lt: new Date(year, 9, 1),
+        },
+      }),
+      await this.productModel.count({
+        created_at: {
+          $gte: new Date(year, 9, 1),
+          $lt: new Date(year, 12, 1),
+        },
+      }),
+    ];
   }
 }

@@ -153,4 +153,33 @@ export class UserService {
   async refreshToken(user: UserDocument) {
     return this.tokenService.refreshToken(user);
   }
+
+  async getByQuarter(year = 2021) {
+    return [
+      await this.userModel.count({
+        created_at: {
+          $gte: new Date(year, 1, 1),
+          $lt: new Date(year, 3, 1),
+        },
+      }),
+      await this.userModel.count({
+        created_at: {
+          $gte: new Date(year, 3, 1),
+          $lt: new Date(year, 6, 1),
+        },
+      }),
+      await this.userModel.count({
+        created_at: {
+          $gte: new Date(year, 6, 1),
+          $lt: new Date(year, 9, 1),
+        },
+      }),
+      await this.userModel.count({
+        created_at: {
+          $gte: new Date(year, 9, 1),
+          $lt: new Date(year, 12, 1),
+        },
+      }),
+    ];
+  }
 }

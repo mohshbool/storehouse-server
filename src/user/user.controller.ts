@@ -1,4 +1,4 @@
-import { Controller, Get, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
 import { AuthGuard } from 'src/auth.guard';
 import { CurrentUser } from './user.decorator';
 import { CreateUserInput, LoginInput, UpdatePassword } from './user.interface';
@@ -10,12 +10,12 @@ export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @Post('create')
-  async create(userInput: CreateUserInput) {
+  async create(@Body() userInput: CreateUserInput) {
     return this.userService.create(userInput);
   }
 
   @Post('login')
-  async login(loginInput: LoginInput) {
+  async login(@Body() loginInput: LoginInput) {
     return this.userService.login(loginInput);
   }
 
@@ -27,17 +27,27 @@ export class UserController {
 
   @UseGuards(AuthGuard)
   @Post('update-password')
-  async updatePassword(input: UpdatePassword, @CurrentUser() user: User) {
+  async updatePassword(
+    @Body() input: UpdatePassword,
+    @CurrentUser() user: User,
+  ) {
     return this.userService.updatePassword(user.id, input);
   }
 
   @Post('forget-password')
-  async forgetPassword(email: string) {
+  async forgetPassword(@Body() email: string) {
     return this.userService.forgetPassword(email);
   }
 
+  @UseGuards(AuthGuard)
   @Get('all')
   async findAll() {
     return this.userService.findAll();
+  }
+
+  @UseGuards(AuthGuard)
+  @Get('by-quarter')
+  async getByQuarter(@Param('year') year: number) {
+    return this.userService.getByQuarter(year);
   }
 }
